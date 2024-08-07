@@ -64,22 +64,23 @@ class OrderSerializer(serializers.ModelSerializer):
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time")
-
-
-class FlightListSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time")
-
-
-class FlightDetailSerializer(serializers.ModelSerializer):
-    crew = CrewSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Flight
         fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
+
+
+class FlightListSerializer(FlightSerializer):
+    crew = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="full_name",
+    )
+    #
+    # class Meta:
+    #     model = Flight
+    #     fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
+
+
+class FlightDetailSerializer(FlightSerializer):
+    crew = CrewSerializer(many=True, read_only=True)
 
 
 class TicketSerializer(serializers.ModelSerializer):
