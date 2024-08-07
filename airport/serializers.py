@@ -35,4 +35,27 @@ class AirplaneSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "rows", "seats_in_row", "airplane_type")
 
 
+class CrewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Crew
+        fields = ("id", "first_name", "last_name")
 
+
+class OrderSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(format="%d/%m/%y %H:%M", read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ("id", "created_at", "user")
+
+
+class FlightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = ("id", "route", "airplane", "departure_time", "arrival_time")
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat", "flight", "order")
