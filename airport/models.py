@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from datetime import datetime
 
 
 class Airport(models.Model):
@@ -108,6 +109,14 @@ class Flight(models.Model):
 
     def __str__(self):
         return f"{self.route.source} - {self.route.destination}"
+
+    def clean(self):
+        if self.departure_time > self.arrival_time:
+            raise ValidationError("departure time cannot be greater than arrival time")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
 
 class Ticket(models.Model):
