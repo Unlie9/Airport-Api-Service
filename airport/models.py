@@ -94,7 +94,7 @@ class Flight(models.Model):
         verbose_name_plural = "Flights"
 
     def __str__(self):
-        return f"{self.departure_time} - {self.arrival_time}"
+        return f"{self.route.source} - {self.route.destination}"
 
 
 class Ticket(models.Model):
@@ -126,3 +126,6 @@ class Ticket(models.Model):
             self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         self.full_clean()
+        super(Ticket, self).save(
+            force_insert, force_update, using, update_fields
+        )

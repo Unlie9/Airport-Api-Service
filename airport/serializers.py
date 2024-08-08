@@ -9,6 +9,9 @@ from airport.models import (
     Flight,
     Ticket
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class AirportSerializer(serializers.ModelSerializer):
@@ -70,7 +73,7 @@ class FlightListSerializer(FlightSerializer):
 class TicketCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
-        fields = ("row", "seat", "flight", "order")
+        fields = ("id", "row", "seat", "flight")
 
 
 class TicketListSerializer(serializers.ModelSerializer):
@@ -92,23 +95,27 @@ class FlightDetailSerializer(FlightSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    tickets = TicketSerializer(many=True, read_only=False)
+    tickets = TicketCreateSerializer(many=True)
+    created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Order
-        fields = ("id", "created_at", "tickets")
-
-
-class OrderCreateSerializer(serializers.ModelSerializer):
-    tickets = TicketSerializer(many=True, read_only=False)
-
-    class Meta:
-        model = Order
-        fields = ("id", "tickets")
+        fields = [
+            "id",
+            "tickets",
+            "created_at"
+        ]
 
     def create(self, validated_data):
-        tickets = validated_data.pop("tickets")
-        order = Order.objects.create(**validated_data)
-        for ticket in tickets:
-            Ticket.objects.create(order=order, **ticket)
+        tickets_data = validated_data.pop("tickets")
+        order = Order.objects.create(
+            **validated_data,
+            user=self.context["request"].user
+        )
+
+        for ticket_data in tickets_data:
+            ticket = Ticket.objects.create(order=order, **ticket_data)
+            logger.debug(f"Created ticket: {ticket} {ticket.id}")
+            ticket.save()
+
         return order
