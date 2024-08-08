@@ -53,14 +53,6 @@ class CrewSerializer(serializers.ModelSerializer):
         fields = ("id", "first_name", "last_name")
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    created_at = serializers.DateTimeField(format="%d/%m/%y %H:%M", read_only=True)
-
-    class Meta:
-        model = Order
-        fields = ("id", "created_at", "user")
-
-
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
@@ -73,17 +65,50 @@ class FlightListSerializer(FlightSerializer):
         read_only=True,
         slug_field="full_name",
     )
-    #
-    # class Meta:
-    #     model = Flight
-    #     fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
 
 
-class FlightDetailSerializer(FlightSerializer):
-    crew = CrewSerializer(many=True, read_only=True)
+class TicketCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("row", "seat", "flight", "order")
+
+
+class TicketListSerializer(serializers.ModelSerializer):
+    flight = FlightListSerializer(read_only=True)
+
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat", "flight")
 
 
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "flight", "order")
+
+
+class FlightDetailSerializer(FlightSerializer):
+    crew = CrewSerializer(many=True, read_only=True)
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True, read_only=False)
+
+    class Meta:
+        model = Order
+        fields = ("id", "created_at", "tickets")
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True, read_only=False)
+
+    class Meta:
+        model = Order
+        fields = ("id", "tickets")
+
+    def create(self, validated_data):
+        tickets = validated_data.pop("tickets")
+        order = Order.objects.create(**validated_data)
+        for ticket in tickets:
+            Ticket.objects.create(order=order, **ticket)
+        return order
