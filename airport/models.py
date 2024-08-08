@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -20,6 +21,10 @@ class Route(models.Model):
 
     class Meta:
         verbose_name_plural = "Routes"
+        indexes = [
+            models.Index(fields=["source", "destination"]),
+            models.Index(fields=["distance"]),
+        ]
 
     def __str__(self):
         return f"{self.source.name} - {self.destination.name}"
@@ -69,6 +74,14 @@ class Crew(models.Model):
 
     def __str__(self):
         return self.first_name + " " + self.last_name
+
+    def clean(self):
+        if Crew.objects.filter(first_name=self.first_name, last_name=self.last_name).exists():
+            raise ValidationError("This person already exists")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
 
 class Order(models.Model):

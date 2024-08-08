@@ -71,9 +71,6 @@ class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
 
-    def get_queryset(self):
-        return self.queryset
-
 
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all()
