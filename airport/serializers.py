@@ -9,9 +9,6 @@ from airport.models import (
     Flight,
     Ticket
 )
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 class AirportSerializer(serializers.ModelSerializer):
@@ -115,7 +112,6 @@ class OrderSerializer(serializers.ModelSerializer):
 
         for ticket_data in tickets_data:
             ticket = Ticket.objects.create(order=order, **ticket_data)
-            logger.debug(f"Created ticket: {ticket} {ticket.id}")
             ticket.save()
 
         return order
