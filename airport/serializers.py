@@ -73,22 +73,22 @@ class FlightSerializer(serializers.ModelSerializer):
         fields = ("id", "route_info", "airplane", "departure_time", "arrival_time", "crew")
 
 
-
-
-
 class CreateFlightSerializer(serializers.ModelSerializer):
     airplane = serializers.SlugRelatedField(
         slug_field="name",
         queryset=Airplane.objects.all()
     )
-    # route = serializers.SlugRelatedField(
-    #     slug_field="get_info",
-    #     queryset=Route.objects.all()
-    # )
+    route = serializers.PrimaryKeyRelatedField(
+        queryset=Route.objects.all()
+    )
+    route_info = serializers.SerializerMethodField()
 
     class Meta:
         model = Flight
-        fields = ("id", "departure_time", "arrival_time", "crew", "airplane")
+        fields = ("id", "departure_time", "arrival_time", "crew", "airplane", "route", "route_info")
+
+    def get_route_info(self, obj):
+        return f"{obj.route.source.name} - {obj.route.destination.name}"
 
     def validate(self, attrs):
         Flight.validate_departure_and_arrival_time(
