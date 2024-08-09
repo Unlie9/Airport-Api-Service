@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
@@ -29,8 +30,8 @@ from airport.serializers import (
 
 class Pagination(PageNumberPagination):
     page_size_query_param = 'size'
-    max_page_size = 4
-    page_size = 4
+    max_page_size = 3
+    page_size = 3
 
 
 class AirportViewSet(viewsets.ModelViewSet):
@@ -91,9 +92,22 @@ class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all()
     serializer_class = FlightSerializer
     pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["route", "airplane", "departure_time", "arrival_time"]
+
+    @staticmethod
+    def params_to_ints(query_string):
+        return [int(str_id) for str_id in query_string.split(",")]
 
     def get_queryset(self):
-        queryset = self.queryset.select_related()
+        queryset = self.queryset
+
+        if self.action in ("list", "retrieve"):
+            queryset = queryset.select_related(
+                "route__source",
+                "route__destination",
+                "airplane__airplane_type",
+            ).prefetch_related("crew")
 
         return queryset
 
