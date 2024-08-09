@@ -81,22 +81,6 @@ class FlightListSerializer(FlightSerializer):
     )
 
 
-# dublicate ticket serializers
-
-class TicketCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ticket
-        fields = ("id", "row", "seat", "flight")
-
-
-class TicketListSerializer(serializers.ModelSerializer):
-    flight = FlightListSerializer(read_only=True)
-
-    class Meta:
-        model = Ticket
-        fields = ("id", "row", "seat", "flight")
-
-
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket

@@ -24,8 +24,6 @@ from airport.serializers import (
     FlightDetailSerializer,
     AirplaneListSerializer,
     AirplaneDetailSerializer,
-    TicketListSerializer,
-    TicketCreateSerializer
 )
 
 
