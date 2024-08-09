@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from datetime import datetime
 
 
 class Airport(models.Model):
@@ -126,12 +125,6 @@ class Ticket(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["row", "seat", "flight"],
-                name="unique_flight",
-            )
-        ]
         verbose_name_plural = "Tickets",
         ordering = ["seat"]
 
