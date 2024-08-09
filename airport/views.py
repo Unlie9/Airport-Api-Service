@@ -38,6 +38,8 @@ class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
     pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["name"]
 
     def get_queryset(self):
         return self.queryset
@@ -47,6 +49,8 @@ class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
     pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["source", "destination"]
 
     def get_queryset(self):
         return self.queryset
@@ -61,6 +65,8 @@ class AirPlaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
     pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["name"]
 
     def get_queryset(self):
         return self.queryset
@@ -70,6 +76,8 @@ class AirPlaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
     serializer_class = AirplaneSerializer
     pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["name"]
 
     def get_queryset(self):
         return self.queryset
@@ -86,6 +94,8 @@ class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
     pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["first_name", "last_name"]
 
 
 class FlightViewSet(viewsets.ModelViewSet):
@@ -134,6 +144,8 @@ class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["flight"]
 
     def get_serializer_class(self):
         if self.action == "list":
