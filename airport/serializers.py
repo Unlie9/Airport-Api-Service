@@ -1,9 +1,5 @@
 from django.utils import timezone
-
-
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-
 from airport.models import (
     Airport,
     Route,
@@ -105,12 +101,6 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "flight", "order")
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Ticket.objects.all(),
-                fields=("row", "seat", "flight"),
-            )
-        ]
 
     def validate(self, attrs):
         Ticket.validate_seat(
@@ -122,6 +112,13 @@ class TicketSerializer(serializers.ModelSerializer):
             attrs["row"],
             attrs["flight"].airplane.rows,
             serializers.ValidationError
+        )
+        Ticket.validate_ticket(
+            attrs["row"],
+            attrs["seat"],
+            attrs["flight"],
+            serializers.ValidationError
+
         )
 
         return attrs

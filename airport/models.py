@@ -164,19 +164,20 @@ class Ticket(models.Model):
                 }
             )
 
+    @staticmethod
+    def validate_ticket(row, seat, flight, error_to_raise):
+        # noinspection PyUnusedLocal !!!
+        if Ticket.objects.filter(row=row, seat=seat, flight=flight).exists():
+            raise error_to_raise(
+                {
+                    "ticket": "that ticket already taken"
+                }
+            )
+
     def clean(self):
         Ticket.validate_seat(self.seat, self.flight.airplane.seats_in_row, ValueError)
         Ticket.validate_row(self.row, self.flight.airplane.rows, ValueError)
-        # queryset = Flight.objects.filter(seat=self.seat, row=self.row)
-        # if queryset.exists(): # error
-        #     raise ValidationError("ticket already exists")
-
-        # if not (1 <= self.seat <= self.flight.airplane.seats_in_row):
-        #     raise ValueError(
-        #         f"seat must be in range between 1 and {self.flight.airplane.seats_in_row}"
-        #     )
-        # if self.row > self.flight.airplane.rows:
-        #     raise ValueError("row cannot be greater than flights airplane rows")
+        Ticket.validate_ticket(self.row, self.seat, self.flight, ValueError)
 
     def save(
             self, force_insert=False, force_update=False, using=None, update_fields=None
