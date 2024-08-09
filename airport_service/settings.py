@@ -96,8 +96,10 @@ REST_FRAMEWORK = {
     #     "rest_framework.throttling.UserRateThrottle",
     # ],
     # "DEFAULT_THROTTLE_RATES": {"anon": "10/day", "user": "30/day"},
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 5,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 

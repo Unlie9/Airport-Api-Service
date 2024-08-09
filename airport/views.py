@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
 
 from airport.models import (
     Airport,
@@ -28,9 +29,16 @@ from airport.serializers import (
 )
 
 
+class Pagination(PageNumberPagination):
+    page_size_query_param = 'size'
+    max_page_size = 4
+    page_size = 4
+
+
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
+    pagination_class = Pagination
 
     def get_queryset(self):
         return self.queryset
@@ -39,6 +47,7 @@ class AirportViewSet(viewsets.ModelViewSet):
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
+    pagination_class = Pagination
 
     def get_queryset(self):
         return self.queryset
@@ -47,6 +56,7 @@ class RouteViewSet(viewsets.ModelViewSet):
 class AirPlaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
+    pagination_class = Pagination
 
     def get_queryset(self):
         return self.queryset
@@ -55,6 +65,7 @@ class AirPlaneTypeViewSet(viewsets.ModelViewSet):
 class AirPlaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
     serializer_class = AirplaneSerializer
+    pagination_class = Pagination
 
     def get_queryset(self):
         return self.queryset
@@ -70,11 +81,13 @@ class AirPlaneViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    pagination_class = Pagination
 
 
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all()
     serializer_class = FlightSerializer
+    pagination_class = Pagination
 
     def get_queryset(self):
         return self.queryset
@@ -90,6 +103,7 @@ class FlightViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    pagination_class = Pagination
 
     def get_queryset(self):
         # if not self.request.user.is_staff:
@@ -103,3 +117,4 @@ class OrderViewSet(viewsets.ModelViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+    pagination_class = Pagination

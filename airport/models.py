@@ -139,10 +139,16 @@ class Ticket(models.Model):
         return f"{self.row} - {self.seat} - {self.flight}"
 
     def clean(self):
+        # queryset = Flight.objects.filter(seat=self.seat, row=self.row)
+        # if queryset.exists(): # error
+        #     raise ValidationError("ticket already exists")
+
         if not (1 <= self.seat <= self.flight.airplane.seats_in_row):
             raise ValueError(
                 f"seat must be in range between 1 and {self.flight.airplane.seats_in_row}"
             )
+        if self.row > self.flight.airplane.rows:
+            raise ValueError("row cannot be greater than flights airplane rows")
 
     def save(
             self, force_insert=False, force_update=False, using=None, update_fields=None

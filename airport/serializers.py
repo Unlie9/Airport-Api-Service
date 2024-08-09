@@ -67,6 +67,8 @@ class FlightListSerializer(FlightSerializer):
     )
 
 
+# dublicate ticket serializers
+
 class TicketCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
@@ -92,7 +94,7 @@ class FlightDetailSerializer(FlightSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    tickets = TicketCreateSerializer(many=True)
+    tickets = TicketSerializer(many=True)
     created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
