@@ -109,9 +109,23 @@ class Flight(models.Model):
     def __str__(self):
         return f"{self.route.source} - {self.route.destination}"
 
-    def clean(self):
-        if self.departure_time > self.arrival_time:
-            raise ValidationError("departure time cannot be greater than arrival time")
+    @staticmethod
+    def validate_departure_and_arrival_time(departure_time, arrival_time, error_to_raise):
+        if departure_time > arrival_time:
+            raise error_to_raise(
+                {
+                    "departure_time": "departure time can't be later than arrival_time",
+                }
+            )
+
+    @staticmethod
+    def validate_departure_and_now_time(departure_time, now_time, error_to_raise):
+        if departure_time < now_time:
+            raise error_to_raise(
+                {
+                    "departure_time": "departure time can't be earlier than now",
+                }
+            )
 
     def save(self, *args, **kwargs):
         self.clean()

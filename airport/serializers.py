@@ -1,3 +1,6 @@
+from django.utils import timezone
+
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -59,6 +62,19 @@ class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
         fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
+
+    def validate(self, attrs):
+        Flight.validate_departure_and_arrival_time(
+            attrs["departure_time"],
+            attrs["arrival_time"],
+            serializers.ValidationError
+        )
+        Flight.validate_departure_and_now_time(
+            attrs["departure_time"],
+            timezone.now(),
+            serializers.ValidationError
+        )
+        return attrs
 
 
 class FlightListSerializer(FlightSerializer):
