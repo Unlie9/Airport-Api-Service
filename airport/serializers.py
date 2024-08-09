@@ -1,5 +1,6 @@
 from django.utils import timezone
 from rest_framework import serializers
+
 from airport.models import (
     Airport,
     Route,
@@ -79,9 +80,33 @@ class FlightListSerializer(FlightSerializer):
         read_only=True,
         slug_field="full_name",
     )
+    route_info = serializers.CharField(
+        source="route.get_info",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Flight
+        fields = FlightSerializer.Meta.fields + ("route_info",)
+
+
+class FlightDetailSerializer(FlightSerializer):
+    crew = CrewSerializer(many=True, read_only=True)
+    route_info = serializers.CharField(
+        source="route.get_info",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Flight
+        fields = FlightSerializer.Meta.fields + ("crew", "route_info")
 
 
 class TicketSerializer(serializers.ModelSerializer):
+    flight = serializers.CharField(
+        source="flight.route.get_info",
+    )
+
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "flight", "order")
@@ -108,8 +133,18 @@ class TicketSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class FlightDetailSerializer(FlightSerializer):
-    crew = CrewSerializer(many=True, read_only=True)
+class TicketCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat", "flight", "order")
+
+
+class TicketListSerializer(serializers.ModelSerializer):
+    flight = FlightDetailSerializer(read_only=True)
+
+    class Meta:
+        model = Ticket
+        fields = ("id", "seat", "row", "flight")
 
 
 class OrderSerializer(serializers.ModelSerializer):

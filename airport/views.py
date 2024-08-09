@@ -23,7 +23,7 @@ from airport.serializers import (
     FlightListSerializer,
     FlightDetailSerializer,
     AirplaneListSerializer,
-    AirplaneDetailSerializer,
+    AirplaneDetailSerializer, TicketListSerializer, TicketCreateSerializer,
 )
 
 
@@ -88,7 +88,12 @@ class FlightViewSet(viewsets.ModelViewSet):
     pagination_class = Pagination
 
     def get_queryset(self):
-        return self.queryset
+        queryset = self.queryset
+
+        # route = self.request.query_params.get("route", None)
+        # if self.action in ["list", "retrieve"]:
+        #     queryset = queryset.select_related("route__get_info")
+        # return queryset
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -104,8 +109,6 @@ class OrderViewSet(viewsets.ModelViewSet):
     pagination_class = Pagination
 
     def get_queryset(self):
-        # if not self.request.user.is_staff:
-        #     return self.queryset.filter(user=self.request.user)
         return self.queryset
 
     # def perform_create(self, serializer):
@@ -116,3 +119,10 @@ class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     pagination_class = Pagination
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return TicketListSerializer
+        elif self.action == "create":
+            return TicketCreateSerializer
+        return self.serializer_class

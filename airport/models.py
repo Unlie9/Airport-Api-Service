@@ -29,6 +29,10 @@ class Route(models.Model):
     def __str__(self):
         return f"{self.source.name} - {self.destination.name}"
 
+    @property
+    def get_info(self):
+        return str(self)
+
 
 class AirplaneType(models.Model):
     name = models.CharField(max_length=64, unique=True)
@@ -109,6 +113,10 @@ class Flight(models.Model):
     def __str__(self):
         return f"{self.route.source} - {self.route.destination}"
 
+    @property
+    def get_route(self):
+        return str(self)
+
     @staticmethod
     def validate_departure_and_arrival_time(departure_time, arrival_time, error_to_raise):
         if departure_time > arrival_time:
@@ -139,11 +147,11 @@ class Ticket(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
 
     class Meta:
-        verbose_name_plural = "Tickets",
+        verbose_name_plural = "Tickets"
         ordering = ["seat"]
 
     def __str__(self):
-        return f"{self.row} - {self.seat} - {self.flight}"
+        return f"{self.row} - {self.seat} {self.flight.get_route}"
 
     @staticmethod
     def validate_seat(seat, seats_in_row, error_to_raise):
