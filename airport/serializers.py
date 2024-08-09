@@ -60,6 +60,7 @@ class FlightSerializer(serializers.ModelSerializer):
         source="route.get_info",
         read_only=True,
     )
+    airplane = AirplaneListSerializer(many=False, read_only=True)
 
     class Meta:
         model = Flight

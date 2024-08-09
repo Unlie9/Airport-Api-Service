@@ -59,7 +59,9 @@ class Airplane(models.Model):
 
     @property
     def is_small(self):
-        return self.capacity < 60
+        if self.capacity < 60:
+            return "Yes"
+        return "No"
 
     def __str__(self):
         return self.name
