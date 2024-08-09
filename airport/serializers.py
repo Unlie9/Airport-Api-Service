@@ -96,6 +96,20 @@ class TicketSerializer(serializers.ModelSerializer):
             )
         ]
 
+    def validate(self, attrs):
+        Ticket.validate_seat(
+            attrs["seat"],
+            attrs["flight"].airplane.seats_in_row,
+            serializers.ValidationError
+        )
+        Ticket.validate_row(
+            attrs["row"],
+            attrs["flight"].airplane.rows,
+            serializers.ValidationError
+        )
+
+        return attrs
+
 
 class FlightDetailSerializer(FlightSerializer):
     crew = CrewSerializer(many=True, read_only=True)

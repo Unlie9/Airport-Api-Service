@@ -131,17 +131,38 @@ class Ticket(models.Model):
     def __str__(self):
         return f"{self.row} - {self.seat} - {self.flight}"
 
+    @staticmethod
+    def validate_seat(seat, seats_in_row, error_to_raise):
+        if not (1 <= seat <= seats_in_row):
+            raise error_to_raise(
+                {
+                    "seat": f"seat must be in range between 1 "
+                            f"and airplane seats in row: {seats_in_row}"
+                }
+            )
+
+    @staticmethod
+    def validate_row(row, rows, error_to_raise):
+        if not (1 <= row <= rows):
+            raise error_to_raise(
+                {
+                    "row": f"row cannot be greater than flights airplane rows: {rows}"
+                }
+            )
+
     def clean(self):
+        Ticket.validate_seat(self.seat, self.flight.airplane.seats_in_row, ValueError)
+        Ticket.validate_row(self.row, self.flight.airplane.rows, ValueError)
         # queryset = Flight.objects.filter(seat=self.seat, row=self.row)
         # if queryset.exists(): # error
         #     raise ValidationError("ticket already exists")
 
-        if not (1 <= self.seat <= self.flight.airplane.seats_in_row):
-            raise ValueError(
-                f"seat must be in range between 1 and {self.flight.airplane.seats_in_row}"
-            )
-        if self.row > self.flight.airplane.rows:
-            raise ValueError("row cannot be greater than flights airplane rows")
+        # if not (1 <= self.seat <= self.flight.airplane.seats_in_row):
+        #     raise ValueError(
+        #         f"seat must be in range between 1 and {self.flight.airplane.seats_in_row}"
+        #     )
+        # if self.row > self.flight.airplane.rows:
+        #     raise ValueError("row cannot be greater than flights airplane rows")
 
     def save(
             self, force_insert=False, force_update=False, using=None, update_fields=None
