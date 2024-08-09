@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 
 from airport.models import (
@@ -76,8 +77,9 @@ class AirPlaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
     serializer_class = AirplaneSerializer
     pagination_class = Pagination
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["name"]
+    ordering_fields = ["rows", "seats_in_row"]
 
     def get_queryset(self):
         return self.queryset
@@ -102,8 +104,9 @@ class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all()
     serializer_class = FlightSerializer
     pagination_class = Pagination
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["route", "airplane", "departure_time", "arrival_time"]
+    ordering_fields = ["departure_time", "arrival_time"]
 
     @staticmethod
     def params_to_ints(query_string):
@@ -135,6 +138,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     pagination_class = Pagination
+    filter_backends = [OrderingFilter]
+    ordering_fields = ["created_at"]
 
     def get_queryset(self):
         return self.queryset

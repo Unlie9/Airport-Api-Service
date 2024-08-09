@@ -96,7 +96,6 @@ class Order(models.Model):
 
     class Meta:
         verbose_name_plural = "Orders"
-        ordering = ['-created_at']
 
     def __str__(self):
         return f"{str(self.created_at)} - {self.user}"
