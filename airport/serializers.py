@@ -56,9 +56,14 @@ class CrewSerializer(serializers.ModelSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
+    route_info = serializers.CharField(
+        source="route.get_info",
+        read_only=True,
+    )
+
     class Meta:
         model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
+        fields = ("id", "route_info", "airplane", "departure_time", "arrival_time", "crew")
 
     def validate(self, attrs):
         Flight.validate_departure_and_arrival_time(

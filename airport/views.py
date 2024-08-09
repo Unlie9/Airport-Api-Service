@@ -89,11 +89,7 @@ class FlightViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
-
-        # route = self.request.query_params.get("route", None)
-        # if self.action in ["list", "retrieve"]:
-        #     queryset = queryset.select_related("route__get_info")
-        # return queryset
+        return queryset
 
     def get_serializer_class(self):
         if self.action == "list":
