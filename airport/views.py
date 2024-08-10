@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -103,15 +105,14 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 class FlightViewSet(viewsets.ModelViewSet):
     serializer_class = FlightSerializer
-    pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ["route__source", "route__destination", "airplane", "departure_time", "arrival_time"]
     ordering_fields = ["departure_time", "arrival_time"]
     search_fields = ["route", "departure_time", "arrival_time"]
 
-    @staticmethod
-    def params_to_ints(query_string):
-        return [int(str_id) for str_id in query_string.split(",")]
+    @method_decorator(cache_page(60 * 2))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = Flight.objects.select_related(
@@ -133,14 +134,11 @@ class FlightViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.all().select_related("user")
     serializer_class = OrderSerializer
     pagination_class = Pagination
     filter_backends = [OrderingFilter]
     ordering_fields = ["created_at"]
-
-    def get_queryset(self):
-        return self.queryset.select_related("user")
 
 
 class TicketViewSet(viewsets.ModelViewSet):
@@ -148,7 +146,8 @@ class TicketViewSet(viewsets.ModelViewSet):
     serializer_class = TicketSerializer
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["flight"]
+    filterset_fields = ["flight__departure_time", "flight__arrival_time",
+                        "flight__route__source", "flight__route__destination"]
 
     def get_queryset(self):
         return self.queryset.select_related()

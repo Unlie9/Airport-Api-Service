@@ -59,9 +59,7 @@ class Airplane(models.Model):
 
     @property
     def is_small(self):
-        if self.capacity < 60:
-            return "Yes"
-        return "No"
+        return "Yes" if self.capacity < 60 else "No"
 
     def __str__(self):
         return self.name
@@ -110,6 +108,11 @@ class Flight(models.Model):
 
     class Meta:
         verbose_name_plural = "Flights"
+        indexes = [
+            models.Index(fields=["route", "airplane"]),
+            models.Index(fields=["departure_time"]),
+            models.Index(fields=["arrival_time"]),
+        ]
 
     def __str__(self):
         return f"{self.route.source} - {self.route.destination}"
