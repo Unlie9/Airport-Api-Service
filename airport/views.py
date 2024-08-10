@@ -4,6 +4,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAdminUser
+
+from airport.permissions import IsAdminAllOrAuthenticatedOrReadOnly
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+
 
 from airport.models import (
     Airport,
@@ -36,7 +41,7 @@ from airport.serializers import (
 
 
 class Pagination(PageNumberPagination):
-    page_size_query_param = 'size'
+    page_size_query_param = "size"
     max_page_size = 3
     page_size = 3
 
@@ -45,6 +50,8 @@ class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
     pagination_class = Pagination
+    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["name"]
 
@@ -56,6 +63,8 @@ class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all().select_related("source", "destination")
     serializer_class = RouteSerializer
     pagination_class = Pagination
+    permission_classes = [IsAdminUser,]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["source", "destination"]
 
@@ -69,6 +78,8 @@ class AirPlaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
     pagination_class = Pagination
+    permission_classes = [IsAdminUser,]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["name"]
 
@@ -80,7 +91,9 @@ class AirPlaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all().select_related("airplane_type")
     serializer_class = AirplaneSerializer
     pagination_class = Pagination
+    permission_classes = [IsAdminUser,]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filterset_fields = ["name"]
     ordering_fields = ["rows", "seats_in_row"]
 
@@ -99,12 +112,16 @@ class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
     pagination_class = Pagination
+    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["first_name", "last_name"]
 
 
 class FlightViewSet(viewsets.ModelViewSet):
     serializer_class = FlightSerializer
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ["route__source", "route__destination", "airplane", "departure_time", "arrival_time"]
     ordering_fields = ["departure_time", "arrival_time"]
@@ -137,6 +154,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().select_related("user")
     serializer_class = OrderSerializer
     pagination_class = Pagination
+    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [OrderingFilter]
     ordering_fields = ["created_at"]
 
@@ -145,6 +164,7 @@ class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     pagination_class = Pagination
+    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
     filter_backends = [SearchFilter, OrderingFilter]
     ordering_fields = ["flight__route__name"]
     search_fields = ["flight__route__name"]

@@ -91,6 +91,14 @@ DATABASES = {
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '50/day',
+        'user': '200/day'
+    },
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.OrderingFilter',
@@ -102,6 +110,8 @@ REST_FRAMEWORK = {
     ),
 }
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = "/files/media"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
