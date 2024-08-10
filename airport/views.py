@@ -16,6 +16,7 @@ from airport.models import (
 from airport.serializers import (
     AirportSerializer,
     RouteSerializer,
+    RouteListSerializer,
     AirplaneSerializer,
     AirplaneTypeSerializer,
     CrewSerializer,
@@ -24,8 +25,11 @@ from airport.serializers import (
     TicketSerializer,
     FlightListSerializer,
     FlightDetailSerializer,
+    CreateFlightSerializer,
     AirplaneListSerializer,
-    AirplaneDetailSerializer, TicketListSerializer, TicketCreateSerializer, RouteListSerializer, CreateFlightSerializer,
+    AirplaneDetailSerializer,
+    TicketListSerializer,
+    TicketCreateSerializer,
 )
 
 
@@ -47,14 +51,11 @@ class AirportViewSet(viewsets.ModelViewSet):
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.all()
+    queryset = Route.objects.all().select_related("source", "destination")
     serializer_class = RouteSerializer
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["source", "destination"]
-
-    def get_queryset(self):
-        return self.queryset
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
@@ -74,7 +75,7 @@ class AirPlaneTypeViewSet(viewsets.ModelViewSet):
 
 
 class AirPlaneViewSet(viewsets.ModelViewSet):
-    queryset = Airplane.objects.all()
+    queryset = Airplane.objects.all().select_related("airplane_type")
     serializer_class = AirplaneSerializer
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -101,11 +102,10 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 
 class FlightViewSet(viewsets.ModelViewSet):
-    queryset = Flight.objects.all()
     serializer_class = FlightSerializer
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["route", "airplane", "departure_time", "arrival_time"]
+    filterset_fields = ["route__source", "route__destination", "airplane", "departure_time", "arrival_time"]
     ordering_fields = ["departure_time", "arrival_time"]
     search_fields = ["route", "departure_time", "arrival_time"]
 
@@ -114,14 +114,11 @@ class FlightViewSet(viewsets.ModelViewSet):
         return [int(str_id) for str_id in query_string.split(",")]
 
     def get_queryset(self):
-        queryset = self.queryset
-
-        if self.action in ("list", "retrieve"):
-            queryset = queryset.select_related(
-                "route__source",
-                "route__destination",
-                "airplane__airplane_type",
-            ).prefetch_related("crew")
+        queryset = Flight.objects.select_related(
+            "route__source",
+            "route__destination",
+            "airplane__airplane_type",
+        ).prefetch_related("crew")
 
         return queryset
 
@@ -143,7 +140,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     ordering_fields = ["created_at"]
 
     def get_queryset(self):
-        return self.queryset
+        return self.queryset.select_related("user")
 
 
 class TicketViewSet(viewsets.ModelViewSet):
@@ -152,6 +149,9 @@ class TicketViewSet(viewsets.ModelViewSet):
     pagination_class = Pagination
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["flight"]
+
+    def get_queryset(self):
+        return self.queryset.select_related()
 
     def get_serializer_class(self):
         if self.action == "list":

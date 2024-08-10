@@ -151,9 +151,6 @@ class Ticket(models.Model):
         verbose_name_plural = "Tickets"
         ordering = ["seat"]
 
-    def __str__(self):
-        return f"{self.row} - {self.seat} {self.flight.get_route}"
-
     @staticmethod
     def validate_seat(seat, seats_in_row, error_to_raise):
         if not (1 <= seat <= seats_in_row):
