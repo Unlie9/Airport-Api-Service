@@ -1,6 +1,7 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
@@ -55,8 +56,19 @@ class AirportViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["name"]
 
-    def get_queryset(self):
-        return self.queryset
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="name",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by name",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, args, kwargs)
 
 
 class RouteViewSet(viewsets.ModelViewSet):
@@ -73,6 +85,27 @@ class RouteViewSet(viewsets.ModelViewSet):
             return RouteListSerializer
         return self.serializer_class
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="source",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by source",
+            ),
+            OpenApiParameter(
+                name="destination",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by destination",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, args, kwargs)
+
 
 class AirPlaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
@@ -83,8 +116,19 @@ class AirPlaneTypeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["name"]
 
-    def get_queryset(self):
-        return self.queryset
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="name",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by name",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, args, kwargs)
 
 
 class AirPlaneViewSet(viewsets.ModelViewSet):
@@ -107,6 +151,20 @@ class AirPlaneViewSet(viewsets.ModelViewSet):
             return AirplaneDetailSerializer
         return self.serializer_class
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="name",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by name",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, args, kwargs)
+
 
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
@@ -117,19 +175,71 @@ class CrewViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["first_name", "last_name"]
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="first_name",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by first_name",
+            ),
+            OpenApiParameter(
+                name="last_name",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by last_name",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, args, kwargs)
+
 
 class FlightViewSet(viewsets.ModelViewSet):
     serializer_class = FlightSerializer
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["route__source", "route__destination", "airplane", "departure_time", "arrival_time"]
+    filterset_fields = ["route__source", "route__destination", "departure_time", "arrival_time"]
     ordering_fields = ["departure_time", "arrival_time"]
     search_fields = ["route", "departure_time", "arrival_time"]
 
-    @method_decorator(cache_page(60 * 2))
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="source",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by source",
+            ),
+            OpenApiParameter(
+                name="destination",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by destination",
+            ),
+            OpenApiParameter(
+                name="departure_time",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by departure_time",
+            ),
+            OpenApiParameter(
+                name="arrival_time",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by arrival_time",
+            )
+        ]
+    )
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        return super().list(request, args, kwargs)
 
     def get_queryset(self):
         queryset = Flight.objects.select_related(
@@ -158,6 +268,20 @@ class OrderViewSet(viewsets.ModelViewSet):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [OrderingFilter]
     ordering_fields = ["created_at"]
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="created_at",
+                type=str,
+                required=False,
+                location=OpenApiParameter.QUERY,
+                description="Filter by created_at",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, args, kwargs)
 
 
 class TicketViewSet(viewsets.ModelViewSet):
