@@ -261,13 +261,18 @@ class FlightViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all().select_related("user")
     serializer_class = OrderSerializer
     pagination_class = Pagination
     permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [OrderingFilter]
     ordering_fields = ["created_at"]
+
+    def get_queryset(self):
+        queryset = Order.objects.prefetch_related("tickets")
+        if not self.request.user.is_staff:
+            queryset.filter(user=self.request.user)
+        return queryset
 
     @extend_schema(
         parameters=[
