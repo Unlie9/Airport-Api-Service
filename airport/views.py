@@ -145,9 +145,9 @@ class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     pagination_class = Pagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["flight__departure_time", "flight__arrival_time",
-                        "flight__route__source", "flight__route__destination"]
+    filter_backends = [SearchFilter, OrderingFilter]
+    ordering_fields = ["flight__route__name"]
+    search_fields = ["flight__route__name"]
 
     def get_queryset(self):
         return self.queryset.select_related()
