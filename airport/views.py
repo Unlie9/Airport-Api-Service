@@ -1,5 +1,3 @@
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -9,7 +7,6 @@ from rest_framework.permissions import IsAdminUser
 
 from airport.permissions import IsAdminAllOrAuthenticatedOrReadOnly
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-
 
 from airport.models import (
     Airport,
@@ -200,7 +197,7 @@ class CrewViewSet(viewsets.ModelViewSet):
 class FlightViewSet(viewsets.ModelViewSet):
     serializer_class = FlightSerializer
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
-    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminUser,)
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_fields = ["route__source", "route__destination", "departure_time", "arrival_time"]
     ordering_fields = ["departure_time", "arrival_time"]
@@ -263,7 +260,7 @@ class FlightViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     pagination_class = Pagination
-    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminUser,)
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [OrderingFilter]
     ordering_fields = ["created_at"]
