@@ -51,7 +51,7 @@ class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
     pagination_class = Pagination
-    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
+    permission_classes = [IsAdminUser,]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["name"]
@@ -170,7 +170,7 @@ class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
     pagination_class = Pagination
-    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
+    permission_classes = [IsAdminUser]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["first_name", "last_name"]
