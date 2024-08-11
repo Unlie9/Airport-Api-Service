@@ -5,7 +5,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
 
-from airport.permissions import IsAdminAllOrAuthenticatedOrReadOnly
+from airport.permissions import IsAdminAllOrAuthenticatedOrReadOnly, IsAdminReadOnly, IsAdminOrReadOnly
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 from airport.models import (
@@ -197,9 +197,9 @@ class CrewViewSet(viewsets.ModelViewSet):
 class FlightViewSet(viewsets.ModelViewSet):
     serializer_class = FlightSerializer
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    filterset_fields = ["route__source", "route__destination", "departure_time", "arrival_time"]
+    filterset_fields = ["route__source", "departure_time", "arrival_time"]
     ordering_fields = ["departure_time", "arrival_time"]
     search_fields = ["route", "departure_time", "arrival_time"]
 
@@ -242,7 +242,7 @@ class FlightViewSet(viewsets.ModelViewSet):
         queryset = Flight.objects.select_related(
             "route__source",
             "route__destination",
-            "airplane__airplane_type",
+            "airplane__airplane_type"
         ).prefetch_related("crew")
 
         return queryset
@@ -260,7 +260,7 @@ class FlightViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     pagination_class = Pagination
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     filter_backends = [OrderingFilter]
     ordering_fields = ["created_at"]
@@ -290,7 +290,7 @@ class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     pagination_class = Pagination
-    permission_classes = (IsAdminAllOrAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminReadOnly,)
     filter_backends = [SearchFilter, OrderingFilter]
     ordering_fields = ["flight__route__name"]
     search_fields = ["flight__route__name"]

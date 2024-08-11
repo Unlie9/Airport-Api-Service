@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import UniqueConstraint
 
 
 class Airport(models.Model):
@@ -153,6 +154,11 @@ class Ticket(models.Model):
     class Meta:
         verbose_name_plural = "Tickets"
         ordering = ["seat"]
+        constraints = [
+            UniqueConstraint(
+                fields=["row", "seat", "flight"], name="unique_ticket_seat_row_flight"
+            )
+        ]
 
     @staticmethod
     def validate_seat(seat, seats_in_row, error_to_raise):
@@ -166,27 +172,33 @@ class Ticket(models.Model):
 
     @staticmethod
     def validate_row(row, rows, error_to_raise):
-        if not (1 <= row <= rows):
+        if not row <= rows:
             raise error_to_raise(
                 {
                     "row": f"row cannot be greater than flights airplane rows: {rows}"
                 }
             )
-
-    @staticmethod
-    def validate_ticket(row, seat, flight, error_to_raise):
-        # noinspection PyUnusedLocal !!!
-        if Ticket.objects.filter(row=row, seat=seat, flight=flight).exists():
+        if not 1 <= row:
             raise error_to_raise(
                 {
-                    "ticket": "that ticket already taken"
+                    "row": f"row cannot be lower than 1"
                 }
             )
+
+    # @staticmethod
+    # def validate_ticket(row, seat, error_to_raise):
+    #     # noinspection PyUnusedLocal !!!
+    #     if Ticket.objects.filter(row=row, seat=seat,).exists():
+    #         raise error_to_raise(
+    #             {
+    #                 "ticket": "that ticket already taken"
+    #             }
+    #         )
 
     def clean(self):
         Ticket.validate_seat(self.seat, self.flight.airplane.seats_in_row, ValueError)
         Ticket.validate_row(self.row, self.flight.airplane.rows, ValueError)
-        Ticket.validate_ticket(self.row, self.seat, self.flight, ValueError)
+        # Ticket.validate_ticket(self.row, self.seat, ValueError)
 
     def save(
             self, force_insert=False, force_update=False, using=None, update_fields=None
