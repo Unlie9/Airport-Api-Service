@@ -11,27 +11,17 @@ class IsAdminAllOrAuthenticatedOrReadOnly(BasePermission):
 
 class IsAdminReadOnly(BasePermission):
     def has_permission(self, request, view):
-        # Проверка разрешений на создание
         if request.method in ['POST']:
-            return False  # Запрещаем создание билетов для всех
+            return False
 
-        # Проверка разрешений на просмотр
         if request.method in ['GET', 'HEAD', 'OPTIONS']:
-            return request.user and request.user.is_staff  # Только для администраторов
-
+            return request.user and request.user.is_staff
         return False
 
 
 class IsAdminOrReadOnly(BasePermission):
-    """
-    Custom permission to only allow admins to edit flights and
-    allow all users to view flights.
-    """
-
     def has_permission(self, request, view):
-        # Проверка разрешений на создание и изменение
         if request.method in ['POST', 'PUT', 'PATCH', 'DELETE']:
             return request.user and request.user.is_staff
 
-        # Для запросов на чтение (GET, HEAD, OPTIONS) доступ разрешен всем
         return True

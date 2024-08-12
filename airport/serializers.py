@@ -159,12 +159,6 @@ class TicketCreateSerializer(serializers.ModelSerializer):
             attrs["flight"].airplane.rows,
             serializers.ValidationError
         )
-        # Ticket.validate_ticket(
-        #     attrs["row"],
-        #     attrs["seat"],
-        #     serializers.ValidationError
-        #
-        # )
 
         return attrs
 

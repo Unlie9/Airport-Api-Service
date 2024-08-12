@@ -1,12 +1,17 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
-
-from airport.permissions import IsAdminAllOrAuthenticatedOrReadOnly, IsAdminReadOnly, IsAdminOrReadOnly
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+
+from airport.permissions import (
+    IsAdminAllOrAuthenticatedOrReadOnly,
+    IsAdminReadOnly,
+    IsAdminOrReadOnly
+)
 
 from airport.models import (
     Airport,
