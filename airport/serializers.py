@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -184,14 +185,9 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        tickets_data = validated_data.pop("tickets")
-        order = Order.objects.create(
-            **validated_data,
-            user=self.context["request"].user
-        )
-
-        for ticket_data in tickets_data:
-            ticket = Ticket.objects.create(order=order, **ticket_data)
-            ticket.save()
-
-        return order
+        with transaction.atomic():
+            tickets_data = validated_data.pop("tickets")
+            order = Order.objects.create(**validated_data)
+            for ticket_data in tickets_data:
+                Ticket.objects.create(order=order, **ticket_data)
+            return order

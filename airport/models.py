@@ -185,20 +185,9 @@ class Ticket(models.Model):
                 }
             )
 
-    # @staticmethod
-    # def validate_ticket(row, seat, error_to_raise):
-    #     # noinspection PyUnusedLocal !!!
-    #     if Ticket.objects.filter(row=row, seat=seat,).exists():
-    #         raise error_to_raise(
-    #             {
-    #                 "ticket": "that ticket already taken"
-    #             }
-    #         )
-
     def clean(self):
         Ticket.validate_seat(self.seat, self.flight.airplane.seats_in_row, ValueError)
         Ticket.validate_row(self.row, self.flight.airplane.rows, ValueError)
-        # Ticket.validate_ticket(self.row, self.seat, ValueError)
 
     def save(
             self, force_insert=False, force_update=False, using=None, update_fields=None

@@ -272,9 +272,17 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Order.objects.prefetch_related("tickets")
+
+        if self.request.user.is_anonymous:
+            return queryset.none()
+
         if not self.request.user.is_staff:
-            queryset.filter(user=self.request.user)
+            queryset = queryset.filter(user=self.request.user)
+
         return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
     @extend_schema(
         parameters=[
