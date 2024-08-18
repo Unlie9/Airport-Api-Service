@@ -33,8 +33,8 @@ from airport.serializers import (
     OrderSerializer,
     FlightSerializer,
     TicketSerializer,
-    FlightListSerializer,
-    FlightDetailSerializer,
+    # FlightListSerializer,
+    # FlightDetailSerializer,
     CreateFlightSerializer,
     AirplaneListSerializer,
     AirplaneDetailSerializer,
@@ -253,11 +253,7 @@ class FlightViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
-        if self.action == "list":
-            return FlightListSerializer
-        elif self.action == "retrieve":
-            return FlightDetailSerializer
-        elif self.action == "create":
+        if self.action == "create":
             return CreateFlightSerializer
         return self.serializer_class
 
