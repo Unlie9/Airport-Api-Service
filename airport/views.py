@@ -208,6 +208,20 @@ class FlightViewSet(viewsets.ModelViewSet):
     ordering_fields = ["departure_time", "arrival_time"]
     search_fields = ["route", "departure_time", "arrival_time"]
 
+    def get_queryset(self):
+        queryset = Flight.objects.select_related(
+            "route__source",
+            "route__destination",
+            "airplane__airplane_type"
+        ).prefetch_related("crew")
+
+        return queryset
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateFlightSerializer
+        return self.serializer_class
+
     @extend_schema(
         parameters=[
             OpenApiParameter(
@@ -242,20 +256,6 @@ class FlightViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, args, kwargs)
-
-    def get_queryset(self):
-        queryset = Flight.objects.select_related(
-            "route__source",
-            "route__destination",
-            "airplane__airplane_type"
-        ).prefetch_related("crew")
-
-        return queryset
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return CreateFlightSerializer
-        return self.serializer_class
 
 
 class OrderViewSet(viewsets.ModelViewSet):

@@ -88,11 +88,10 @@ class CreateFlightSerializer(serializers.ModelSerializer):
     route = serializers.PrimaryKeyRelatedField(
         queryset=Route.objects.all()
     )
-    route_info = serializers.SerializerMethodField()
 
     class Meta:
         model = Flight
-        fields = ("id", "departure_time", "arrival_time", "crew", "airplane", "route", "route_info")
+        fields = ("id", "departure_time", "arrival_time", "crew", "airplane", "route")
 
     def get_route_info(self, obj):
         return f"{obj.route.source.name} - {obj.route.destination.name}"
